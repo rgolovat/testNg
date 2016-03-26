@@ -18,7 +18,32 @@ import com.relevantcodes.extentreports.LogStatus;
 public class MainClass extends WebBrowser {
 
 	private static SoftAssert sAssert = new SoftAssert();
+	
 
+	private static By getBy(String el, String args){
+		By element = null;
+		if (el.startsWith("//")){
+			element = By.xpath(String.format(el, args));
+		} else if(el.startsWith(".")) {
+			element = By.cssSelector(el);
+		} else {
+			element = By.id(el);
+		}
+		return element;
+	}
+	
+	private static By getBy(String el){
+		By element = null;
+		if (el.startsWith("//")){
+			element = By.xpath(el);
+		} else if(el.startsWith(".")) {
+			element = By.cssSelector(el);
+		} else {
+			element = By.id(el);
+		}
+		return element;
+	}
+	
 	public static void getPage(String address) {
 		Logger().log(LogStatus.INFO, "Trying to redirect to " + address);
 		Driver().get(address);
@@ -39,11 +64,23 @@ public class MainClass extends WebBrowser {
 		return currAddress;
 	}
 
-	public static WebElement getElement(By by) {
+	public static WebElement getElement(String el) {
 		WebDriverWait wait = new WebDriverWait(Driver(), 10);
 		WebElement element = null;
 		try {
-			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(by)));
+			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(getBy(el))));
+		} catch (NoSuchElementException e) {
+			Logger().log(LogStatus.FATAL, "Cannot find elemnt on the page");
+			e.printStackTrace();
+		}
+		return element;
+	}
+	
+	public static WebElement getElement(String el, String args) {
+		WebDriverWait wait = new WebDriverWait(Driver(), 10);
+		WebElement element = null;
+		try {
+			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(getBy(el, args))));
 		} catch (NoSuchElementException e) {
 			Logger().log(LogStatus.FATAL, "Cannot find elemnt on the page");
 			e.printStackTrace();
@@ -51,10 +88,10 @@ public class MainClass extends WebBrowser {
 		return element;
 	}
 
-	public static void clickOn(By by, String webElement) {
+	public static void clickOn(String el, String webElement) {
 		WebDriverWait wait = new WebDriverWait(Driver(), 60);
 		Logger().log(LogStatus.INFO, "Trying to click on " + webElement);
-		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(getElement(by)));
+		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(getElement(el, webElement)));
 		if (element.isDisplayed() & element.getSize().getHeight() > 0 & element.getSize().getWidth() > 0) {
 			element.click();
 			Logger().log(LogStatus.PASS, "Clicked on " + webElement);
@@ -65,14 +102,24 @@ public class MainClass extends WebBrowser {
 			sAssert.assertTrue(1 == 2);
 		}
 	}
+	
+	public void clickOn(String el){
+		clickOn(el, "");
+	}
+		
 
-	public static void enterText(By by, String text) {
+	public static void enterText(String el, String args, String text) {
 		Logger().log(LogStatus.INFO, "Trying to enter text: " + text);
-		WebElement element = getElement(by);
+		WebElement element = getElement(el, args);
 		element.clear();
 		element.sendKeys(text);
 		Logger().log(LogStatus.PASS, "Entered text: " + text);
 	}
+	
+	public static void enterText(String el, String text) {
+		enterText(el, "", text);
+	}
+	
 
 	public static void switchToFrame(String frameId) {
 		try {
@@ -114,12 +161,21 @@ public class MainClass extends WebBrowser {
 		Logger().log(LogStatus.PASS, "Tab closed");
 	}
 
-	public static String getElementAtt(By by, String attName) {
-		return getElement(by).getAttribute(attName);
+	public static String getElementAtt(String el, String args, String attName) {
+		return getElement(el).getAttribute(attName);
 	}
+	
+	public static String getElementAtt(String el, String attName) {
+	    return getElementAtt(el, "", attName);
+	}
+	
 
-	public static String getElementText(By by) {
-		return getElement(by).getText();
+	public static String getElementText(String el, String args) {
+		return getElement(el).getText();
+	}
+	
+	public static String getElementText(String el) {
+		return getElement(el, "").getText();
 	}
 
 	public static void switchToDefaultFrame() {
@@ -127,8 +183,12 @@ public class MainClass extends WebBrowser {
 		Logger().log(LogStatus.PASS, "Switched to default frame");
 	}
 
-	public static List<WebElement> getElements(By by) {
-		return Driver().findElements(by);
+	public static List<WebElement> getElements(String el, String args) {
+		return Driver().findElements(getBy(el, args));
+	}
+	
+	public static List<WebElement> getElements(String el) {
+		return Driver().findElements(getBy(el, ""));
 	}
 
 	public static void assertEquals(String beforeMess, Object actual, Object expected) {
@@ -152,12 +212,12 @@ public class MainClass extends WebBrowser {
 		}
 	}
 
-	public static boolean isElementDisplayed(By by) {
+	public static boolean isElementDisplayed(String el, String args) {
 		WebDriverWait wait = new WebDriverWait(Driver(), 2);
 		WebElement element = null;
 		boolean b = false;
 		try {
-			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(by)));
+			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(getBy(el, args))));
 			if (element.isDisplayed()) {
 				b = true;
 			} else {
@@ -168,20 +228,33 @@ public class MainClass extends WebBrowser {
 		}
 		return b;
 	}
+	
+	public static boolean isElementDisplayed(String el) {
+		return isElementDisplayed(el, "");
+	}
 
-	public static void selectFromDropdownText(By dropDownIdent, String text) {
+	public static void selectFromDropdownText(String dropDownIdent, String args, String text) {
 		Logger().log(LogStatus.INFO, "Trying to select " + text + " from dropdown");
-		Select oSelection = new Select(getElement(dropDownIdent));
+		Select oSelection = new Select(getElement(dropDownIdent, args));
 		oSelection.selectByVisibleText(text);
 		Logger().log(LogStatus.PASS, "Selected " + text + " from dropdown");
 	}
+	
+	public static void selectFromDropdownText(String dropDownIdent, String text){
+		selectFromDropdownText(dropDownIdent, "", text);
+	}
 
-	public void selectFromDropdownValue(By dropDownIdent, String value) {
+	public void selectFromDropdownValue(String dropDownIdent, String args, String value) {
 		Logger().log(LogStatus.INFO, "Trying to select " + value + " from dropdown");
 		Select oSelection = new Select(getElement(dropDownIdent));
 		oSelection.selectByValue(value);
 		Logger().log(LogStatus.PASS, "Selected " + value + " from dropdown");
 	}
+	
+	public void selectFromDropdownValue(String dropDownIdent, String value){
+		selectFromDropdownValue(dropDownIdent, "", value);
+	}
+	
 	@AfterMethod
 	public static void assertAll() {
 		sAssert.assertAll();
