@@ -11,7 +11,7 @@ import org.openqa.selenium.TakesScreenshot;
 public class Screenshot extends WebBrowser {
 
 	public static String take() {
-		String path = "D:\\workspace\\HappyPath\\resources\\reports\\screenshots\\" + ""+ new Random().nextInt(100000) + ".png";
+		String path = "D:\\workspace\\team3\\src\\test\\java\\resources\\reports\\screenshots\\" + ""+ new Random().nextInt(100000) + ".png";
 		TakesScreenshot screen = (TakesScreenshot) Driver();
 		File source = screen.getScreenshotAs(OutputType.FILE);
 		try {
