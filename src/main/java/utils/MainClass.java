@@ -52,8 +52,9 @@ public class MainClass extends WebBrowser {
 	}
 
 	public static void clickOn(By by, String webElement) {
+		WebDriverWait wait = new WebDriverWait(Driver(), 60);
 		Logger().log(LogStatus.INFO, "Trying to click on " + webElement);
-		WebElement element = getElement(by);
+		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(getElement(by)));
 		if (element.isDisplayed() & element.getSize().getHeight() > 0 & element.getSize().getWidth() > 0) {
 			element.click();
 			Logger().log(LogStatus.PASS, "Clicked on " + webElement);
