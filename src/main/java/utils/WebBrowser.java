@@ -26,7 +26,6 @@ public class WebBrowser extends ReportManager {
 
 	private WebDriver driver;
 	private AndroidDriver mDriver;
-	private boolean check;
 
 	@Parameters({ "browser", "device", "OSv" })
 	@BeforeTest
@@ -37,11 +36,15 @@ public class WebBrowser extends ReportManager {
 			driver = new FirefoxDriver();
 			System.out.println("Firefox has started");
 			threadLocalDriver.set(driver);
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.manage().window().maximize();
 		} else if (browser.equalsIgnoreCase("Chrome")) {
 			System.setProperty("webdriver.chrome.driver", "./src/test/java/resources/drivers/chromedriver.exe");
 			driver = new ChromeDriver();
 			System.out.println("Chrome has started");
 			threadLocalDriver.set(driver);
+			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.manage().window().maximize();
 		} else if (browser.equalsIgnoreCase("MBrowser")) {
 			ServerArguments serverArguments = new ServerArguments();
 			serverArguments.setArgument("--address", "127.0.0.1");
@@ -54,17 +57,15 @@ public class WebBrowser extends ReportManager {
 			capabilities.setCapability("deviceName", device);
 			capabilities.setCapability("platformName", "Android");
 			capabilities.setCapability("platformVersion", OSv);
-			capabilities.setCapability("browserName", browser);
+			capabilities.setCapability("browserName", "Chrome");
 			try {
 				mDriver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
 			threadLocalDriver.set(mDriver);
-		}
-
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		driver.manage().window().maximize();
+			mDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		}		
 	}
 
 	public static WebDriver Driver() {
