@@ -16,7 +16,7 @@ public class ReportManager {
 	
 	private synchronized static ExtentReports getInstance() {
 		if (extent == null) {
-			extent = new ExtentReports("D:\\workspace\\team3\\resources\\reports\\Report.html", true);
+			extent = new ExtentReports("/src/test/java/resources/drivers/reports/Report.html", true);
 		}
 		return extent;
 	}
