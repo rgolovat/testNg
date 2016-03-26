@@ -28,7 +28,7 @@ public class WebBrowser extends ReportManager {
 	private AndroidDriver mDriver;
 	private boolean check;
 
-	@Parameters("browser")
+	@Parameters({ "browser", "device", "OSv" })
 	@BeforeTest
 	public void initWebBrowser(@Optional(value = "Firefox") String browser, @Optional(value = "") String device,
 			@Optional(value = "") String OSv) {
@@ -43,7 +43,13 @@ public class WebBrowser extends ReportManager {
 			System.out.println("Chrome has started");
 			threadLocalDriver.set(driver);
 		} else if (browser.equalsIgnoreCase("MBrowser")) {
-			check = true;
+			ServerArguments serverArguments = new ServerArguments();
+			serverArguments.setArgument("--address", "127.0.0.1");
+			serverArguments.setArgument("--port", 4723);
+			AppiumServer appiumServer = new AppiumServer(serverArguments);
+			appiumServer.startServer();
+			System.out.println("Appium server started");
+
 			DesiredCapabilities capabilities = new DesiredCapabilities();
 			capabilities.setCapability("deviceName", device);
 			capabilities.setCapability("platformName", "Android");
@@ -54,6 +60,7 @@ public class WebBrowser extends ReportManager {
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
+			threadLocalDriver.set(mDriver);
 		}
 
 		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
@@ -63,20 +70,7 @@ public class WebBrowser extends ReportManager {
 	public static WebDriver Driver() {
 		return threadLocalDriver.get();
 	}
-	
-	@BeforeSuite
-	public void startAppiumServer() {
-		if (check = true) {
-			ServerArguments serverArguments = new ServerArguments();
-			serverArguments.setArgument("--address", "127.0.0.1");
-			serverArguments.setArgument("--port", 4723);
-			AppiumServer appiumServer = new AppiumServer(serverArguments);
-			appiumServer.startServer();
-			System.out.println("Appium server started");
-		} else {
-			System.out.println("Appium server will not be used");
-		}
-	}
+
 
 	@AfterTest(alwaysRun = true)
 	public void closeWebBrowser() {
