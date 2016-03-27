@@ -9,7 +9,7 @@ import utils.MainClass;
 
 public class Test1 extends MainClass {
 	
-	@Test(testName = "Reserve tickets", description = "Verifies if results are returned", groups = {"Smoke", "Regression"})
+	@Test(testName = "Reserve tickets", description = "Verifies if results are returned", groups = {"Smoke", "Regression", "http://google.com"})
 	public void test1() {
 		getPage("http://whitelabeldemo.skyscanner.net/en-GB/flights");
 		MainPage.enterOriginCity("London Luton");
