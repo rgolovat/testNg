@@ -2,11 +2,15 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.naming.directory.NoSuchAttributeException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotVisibleException;
+import org.openqa.selenium.InvalidElementStateException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -18,32 +22,20 @@ import com.relevantcodes.extentreports.LogStatus;
 public class MainClass extends WebBrowser {
 
 	private static SoftAssert sAssert = new SoftAssert();
-	
 
-	private static By getBy(String el, String args){
+	private static By getBy(String el, String args) {
 		By element = null;
-		if (el.startsWith("//")){
+		if (el.startsWith("//")) {
 			element = By.xpath(String.format(el, args));
-		} else if(el.startsWith(".")) {
+		} else if (el.startsWith(".")) {
 			element = By.cssSelector(el);
 		} else {
 			element = By.id(el);
 		}
 		return element;
 	}
-	
-	private static By getBy(String el){
-		By element = null;
-		if (el.startsWith("//")){
-			element = By.xpath(el);
-		} else if(el.startsWith(".")) {
-			element = By.cssSelector(el);
-		} else {
-			element = By.id(el);
-		}
-		return element;
-	}
-	
+
+
 	public static void getPage(String address) {
 		Logger().log(LogStatus.INFO, "Trying to redirect to " + address);
 		Driver().get(address);
@@ -65,61 +57,91 @@ public class MainClass extends WebBrowser {
 	}
 
 	public static WebElement getElement(String el) {
-		WebDriverWait wait = new WebDriverWait(Driver(), 10);
 		WebElement element = null;
 		try {
-			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(getBy(el))));
+			element = getElement(el, "");
 		} catch (NoSuchElementException e) {
-			Logger().log(LogStatus.FATAL, "Cannot find elemnt on the page");
-			e.printStackTrace();
+
+		} catch (ElementNotVisibleException e1) {
+
+		} catch (InvalidElementStateException e2) {
+
+		} catch (WebDriverException e3){
+			
 		}
 		return element;
 	}
-	
+
 	public static WebElement getElement(String el, String args) {
-		WebDriverWait wait = new WebDriverWait(Driver(), 10);
+		WebDriverWait wait = new WebDriverWait(Driver(), 30);
 		WebElement element = null;
 		try {
 			element = wait.until(ExpectedConditions.visibilityOf(Driver().findElement(getBy(el, args))));
 		} catch (NoSuchElementException e) {
-			Logger().log(LogStatus.FATAL, "Cannot find elemnt on the page");
+			Logger().log(LogStatus.FATAL,
+					"Cannot find Element on the page" + Logger().addScreenCapture(Screenshot.take()));
 			e.printStackTrace();
+		} catch (ElementNotVisibleException e1) {
+			Logger().log(LogStatus.FATAL,
+					"Element is not visible on the page" + Logger().addScreenCapture(Screenshot.take()));
+			e1.printStackTrace();
+		} catch (InvalidElementStateException e2) {
+			Logger().log(LogStatus.FATAL, "" + e2.getMessage() + Logger().addScreenCapture(Screenshot.take()));
+			e2.printStackTrace();
+		} catch (WebDriverException e3){
+			Logger().log(LogStatus.FATAL, "" + e3.getMessage());
+			e3.printStackTrace();
 		}
 		return element;
 	}
 
 	public static void clickOn(String el, String webElement) {
-		WebDriverWait wait = new WebDriverWait(Driver(), 60);
+		WebDriverWait wait = new WebDriverWait(Driver(), 30);
 		Logger().log(LogStatus.INFO, "Trying to click on " + webElement);
-		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(getElement(el, webElement)));
-		if (element.isDisplayed() & element.getSize().getHeight() > 0 & element.getSize().getWidth() > 0) {
+		try {
+			WebElement element = wait.until(ExpectedConditions.elementToBeClickable(getElement(el, webElement)));
+			element = getElement(el, webElement);
 			element.click();
 			Logger().log(LogStatus.PASS, "Clicked on " + webElement);
-		} else {
-			Logger().log(LogStatus.FAIL,
-					"Cannot click on element: element is not displayed on page or it's dimensions are 0"
-							+ Logger().addScreenCapture(Screenshot.take()));
-			sAssert.assertTrue(1 == 2);
+		} catch (NoSuchElementException e1) {
+		} catch (ElementNotVisibleException e2) {
+		} catch (InvalidElementStateException e2) {
+		} catch (WebDriverException e3){			
 		}
 	}
-	
-	public void clickOn(String el){
+
+	public void clickOn(String el) {
 		clickOn(el, "");
 	}
-		
 
 	public static void enterText(String el, String args, String text) {
 		Logger().log(LogStatus.INFO, "Trying to enter text: " + text);
-		WebElement element = getElement(el, args);
-		element.clear();
-		element.sendKeys(text);
-		Logger().log(LogStatus.PASS, "Entered text: " + text);
+		try {
+			WebElement element = getElement(el, args);
+			element.clear();
+			element.sendKeys(text);
+			Logger().log(LogStatus.PASS, "Entered text: " + text);
+		} catch (NoSuchElementException e1) {
+		} catch (ElementNotVisibleException e2) {
+		} catch (InvalidElementStateException e2) {
+		} catch (WebDriverException e3){			
+		}
+
 	}
-	
+
 	public static void enterText(String el, String text) {
-		enterText(el, "", text);
+		try {
+			enterText(el, "", text);
+		} catch (NoSuchElementException e) {
+
+		} catch (ElementNotVisibleException e1) {
+
+		} catch (InvalidElementStateException e2) {
+
+		} catch (WebDriverException e3){			
+		}
+
 	}
-	
 
 	public static void switchToFrame(String frameId) {
 		try {
@@ -145,7 +167,7 @@ public class MainClass extends WebBrowser {
 			tab = Driver().switchTo().window(getTabs().get(i));
 			Logger().log(LogStatus.PASS, "Switched to tab " + tab.getTitle());
 		} catch (NoSuchWindowException e) {
-			Logger().log(LogStatus.FAIL, "Cannot switch to tab " + i);
+			Logger().log(LogStatus.FAIL, "No such window or tab present: " + i);
 			e.printStackTrace();
 		}
 		return tab;
@@ -157,36 +179,52 @@ public class MainClass extends WebBrowser {
 	}
 
 	public static void closeTab(int i) {
-		switchToTab(i).close();
-		Logger().log(LogStatus.PASS, "Tab closed");
+		try {
+			switchToTab(i).close();
+			Logger().log(LogStatus.PASS, "Tab closed");
+		} catch (NoSuchWindowException e) {
+		}
+
 	}
 
-	public static String getElementAtt(String el, String args, String attName) {
+	public static String getElementAtt(String el, String args, String attName) throws NoSuchAttributeException {
 		return getElement(el).getAttribute(attName);
+
 	}
-	
-	public static String getElementAtt(String el, String attName) {
-	    return getElementAtt(el, "", attName);
+
+	public static String getElementAtt(String el, String attName) throws NoSuchAttributeException {
+		return getElementAtt(el, "", attName);
 	}
-	
 
 	public static String getElementText(String el, String args) {
-		return getElement(el).getText();
+		String text = null;
+		try {
+			text = getElement(el).getText();
+		} catch (NoSuchElementException e) {		
+		} catch (ElementNotVisibleException e3){			
+		} catch (WebDriverException e2){
+		}
+		return text;
 	}
-	
+
 	public static String getElementText(String el) {
 		return getElement(el, "").getText();
 	}
 
 	public static void switchToDefaultFrame() {
-		Driver().switchTo().defaultContent();
-		Logger().log(LogStatus.PASS, "Switched to default frame");
+		try {
+			Driver().switchTo().defaultContent();
+			Logger().log(LogStatus.PASS, "Switched to default frame");
+		} catch (NoSuchFrameException e) {
+			Logger().log(LogStatus.FATAL, "No defalt frame was found");
+		}
+
 	}
 
 	public static List<WebElement> getElements(String el, String args) {
 		return Driver().findElements(getBy(el, args));
 	}
-	
+
 	public static List<WebElement> getElements(String el) {
 		return Driver().findElements(getBy(el, ""));
 	}
@@ -224,37 +262,45 @@ public class MainClass extends WebBrowser {
 				b = false;
 			}
 		} catch (NoSuchElementException e) {
-			e.printStackTrace();
 		}
 		return b;
 	}
-	
+
 	public static boolean isElementDisplayed(String el) {
 		return isElementDisplayed(el, "");
 	}
 
 	public static void selectFromDropdownText(String dropDownIdent, String args, String text) {
 		Logger().log(LogStatus.INFO, "Trying to select " + text + " from dropdown");
-		Select oSelection = new Select(getElement(dropDownIdent, args));
-		oSelection.selectByVisibleText(text);
-		Logger().log(LogStatus.PASS, "Selected " + text + " from dropdown");
+		try {
+			Select oSelection = new Select(getElement(dropDownIdent, args));
+			oSelection.selectByVisibleText(text);
+			Logger().log(LogStatus.PASS, "Selected " + text + " from dropdown");
+		} catch (NoSuchElementException e) {
+
+		}
 	}
-	
-	public static void selectFromDropdownText(String dropDownIdent, String text){
+
+	public static void selectFromDropdownText(String dropDownIdent, String text) {
 		selectFromDropdownText(dropDownIdent, "", text);
 	}
 
 	public void selectFromDropdownValue(String dropDownIdent, String args, String value) {
 		Logger().log(LogStatus.INFO, "Trying to select " + value + " from dropdown");
-		Select oSelection = new Select(getElement(dropDownIdent));
-		oSelection.selectByValue(value);
-		Logger().log(LogStatus.PASS, "Selected " + value + " from dropdown");
+		try {
+			Select oSelection = new Select(getElement(dropDownIdent));
+			oSelection.selectByValue(value);
+			Logger().log(LogStatus.PASS, "Selected " + value + " from dropdown");
+		} catch (NoSuchElementException e) {
+		} catch (ElementNotVisibleException e1) {
+		}
+
 	}
-	
-	public void selectFromDropdownValue(String dropDownIdent, String value){
+
+	public void selectFromDropdownValue(String dropDownIdent, String value) {
 		selectFromDropdownValue(dropDownIdent, "", value);
 	}
-	
+
 	@AfterMethod
 	public static void assertAll() {
 		sAssert.assertAll();

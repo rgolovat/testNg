@@ -9,7 +9,6 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -23,7 +22,8 @@ public class WebBrowser extends ReportManager {
 
 	private static ThreadLocal<WebDriver> threadLocalDriver = new ThreadLocal<WebDriver>();
 	private static ThreadLocal<AndroidDriver> threadLocalMDriver = new ThreadLocal<AndroidDriver>();
-
+    private static ThreadLocal<String> threadLocalBrowserName = new ThreadLocal<String>();
+    public String browserName;
 	private WebDriver driver;
 	private AndroidDriver mDriver;
 
@@ -31,7 +31,7 @@ public class WebBrowser extends ReportManager {
 	@BeforeTest
 	public void initWebBrowser(@Optional(value = "Firefox") String browser, @Optional(value = "") String device,
 			@Optional(value = "") String OSv) {
-
+		browserName = browser;
 		if (browser.equalsIgnoreCase("Firefox")) {
 			driver = new FirefoxDriver();
 			System.out.println("Firefox has started");
@@ -43,7 +43,7 @@ public class WebBrowser extends ReportManager {
 			driver = new ChromeDriver();
 			System.out.println("Chrome has started");
 			threadLocalDriver.set(driver);
-			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+			driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 			driver.manage().window().maximize();
 		} else if (browser.equalsIgnoreCase("MBrowser")) {
 			ServerArguments serverArguments = new ServerArguments();
@@ -65,13 +65,18 @@ public class WebBrowser extends ReportManager {
 			}
 			threadLocalDriver.set(mDriver);
 			mDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-		}		
+		}
+		threadLocalBrowserName.set(browserName);
 	}
 
 	public static WebDriver Driver() {
 		return threadLocalDriver.get();
 	}
-
+	
+	public static String getCurrentBrowserName(){
+		return threadLocalBrowserName.get();
+	}
+	
 
 	@AfterTest(alwaysRun = true)
 	public void closeWebBrowser() {

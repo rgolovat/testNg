@@ -1,8 +1,6 @@
 package testNGClasses;
 
-import java.util.ArrayList;
 import java.util.List;
-
 import org.openqa.selenium.WebElement;
 import org.testng.annotations.Test;
 import pages.MainPage;
@@ -11,7 +9,7 @@ import utils.MainClass;
 
 public class Test1 extends MainClass {
 	
-	@Test(testName = "Reserve tickets", description = "Verifies if results are returned")
+	@Test(testName = "Reserve tickets", description = "Verifies if results are returned", groups = {"Smoke", "Regression"})
 	public void test1() {
 		getPage("http://whitelabeldemo.skyscanner.net/en-GB/flights");
 		MainPage.enterOriginCity("London Luton");

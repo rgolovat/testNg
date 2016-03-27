@@ -21,9 +21,10 @@ public class ReportManager {
 		return extent;
 	}
 
-	public synchronized static Map<Long, ExtentTest> startTest(String testName, String testDescription) {
+	public synchronized static Map<Long, ExtentTest> startTest(String testName, String testDescription, String ... groups) {
 		Long threadID = Thread.currentThread().getId();
 		ExtentTest test = getInstance().startTest(testName, testDescription);
+		test.assignCategory(groups);
 		testThread.put(threadID, test);
 		return testThread;
 	}
@@ -62,10 +63,22 @@ public class ReportManager {
 		}
 		return testDescription;
 	}
+	
+	private static String getTestGroups(Method m) {
+		String b = "";
+		String[] testGroups = m.getAnnotation(Test.class).groups();
+		try {
+			for (int i = 0; i < testGroups.length; i++) {
+				b = b + ": " + testGroups[i];
+			}
+		} catch (Exception e) {
+		}
+		return b;
+	}
 
 	@BeforeMethod
 	public void startReporting(Method m) {
-		startTest(getTestName(m), getTestDescription(m));
+		startTest(getTestName(m), getTestDescription(m), getTestGroups(m), WebBrowser.getCurrentBrowserName());
 	}
 
 	@AfterMethod
