@@ -1,6 +1,7 @@
 package utils;
 
 import com.google.gson.Gson;
+import com.google.thirdparty.publicsuffix.PublicSuffixPatterns;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.Status;
 import com.jayway.restassured.response.ResponseBody;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 
 public class TestrailApi {
@@ -91,5 +93,20 @@ public class TestrailApi {
         }
     }
 
+    public static Map<String ,String> getMap() {
+        Map<String, String> titles = new HashMap<String, String>();
+        List<Map<String,String >> list = TestrailApi.getTests();
+        for(Map<String,String> l : list){
+            System.out.println( l.get("title"));
+
+            titles.put(l.get("title"),l.get("id"));
+
+        }
+        return titles;
+    }
+
+    public static String getIdbyName(String name){
+        return getMap().get(name);
+    }
 
 }
