@@ -11,7 +11,7 @@ public class Test2 extends MainClass {
 		getPage("http://whitelabeldemo.skyscanner.net/en-GB/flights");
 		clickOn(MainPage.carHireLink, "Car Hire");
 		assertTrue("Verifying if redirected to correct page",
-				getCurrUrl().equals("http://whitelabeldemo.skyscanner.net/en-GB/carhire/"));
+				getCurrUrl().equals("http://whitelabeldemo.skyscanner.net/en-GB/carire/"));
 	}
 
 }
