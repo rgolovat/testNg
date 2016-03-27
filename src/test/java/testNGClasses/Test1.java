@@ -1,15 +1,20 @@
 package testNGClasses;
 
+import org.testng.annotations.Test;
+
+import bsh.BshClassManager.Listener;
+
+import org.testng.AssertJUnit;
 import java.util.List;
 import org.openqa.selenium.WebElement;
-import org.testng.annotations.Test;
+import org.testng.annotations.Listeners;
 import pages.MainPage;
 import pages.ResultPage;
+import utils.ListenersQw;
 import utils.MainClass;
 
 public class Test1 extends MainClass {
-	
-	@Test(testName = "Reserve tickets", description = "Verifies if results are returned", groups = {"Smoke", "Regression", "http://google.com"})
+	@Test(testName = "Get Tickets", description = "Verifies if have results", groups = {"Smoke"})
 	public void test1() {
 		getPage("http://whitelabeldemo.skyscanner.net/en-GB/flights");
 		MainPage.enterOriginCity("London Luton");
@@ -22,7 +27,7 @@ public class Test1 extends MainClass {
 		clickOn(MainPage.searchButton, "Search");
 		List<WebElement> elements = getElements(ResultPage.airlineCards);
 		for (WebElement el: elements) {
-			assertTrue("Verifying if have results", el.getText() != null);
+			AssertJUnit.assertTrue("Verifying if have results", el.getText() != null);
 		}
 	}
 	

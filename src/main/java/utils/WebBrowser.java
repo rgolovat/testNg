@@ -9,6 +9,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -63,6 +64,7 @@ public class WebBrowser extends ReportManager {
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
+			browserName = "Mobile " + browserName;
 			threadLocalDriver.set(mDriver);
 			mDriver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		}
