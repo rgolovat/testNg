@@ -12,6 +12,7 @@ import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -114,6 +115,98 @@ public class MainClass extends WebBrowser {
 		clickOn(el, "");
 	}
 
+	public static void moveTo(String tr, String lb, int lprocent, String rb, int rprocent) {
+		WebDriverWait wait = new WebDriverWait(Driver(), 100);
+		Logger().log(LogStatus.INFO, "Trying to moved " + rb + " on track " + tr);
+		
+		if (By.cssSelector(tr) != null) {
+			WebElement track = wait.until(ExpectedConditions.elementToBeClickable(getElement(tr)));
+			int width = track.getSize().getWidth();
+		
+			if (lb != null) {
+				WebElement lbutton = wait.until(ExpectedConditions.elementToBeClickable(getElement(lb)));
+				if (lbutton.isDisplayed()) {
+					new Actions(Driver())
+								.dragAndDropBy(lbutton, width / 100 * (lprocent), 0)
+								.build()
+				                .perform();
+					
+					Logger().log(LogStatus.PASS, "Slider moved " + lb);
+				} else {
+					Logger().log(LogStatus.FAIL,
+							"Cannot moved on element: element is not displayed on page or it's dimensions are 0"
+									+ Logger().addScreenCapture(Screenshot.take()));
+					sAssert.assertTrue(1 == 2);
+				}		
+			}
+			if (rb != null) {
+				WebElement rbutton = wait.until(ExpectedConditions.elementToBeClickable(getElement(rb)));
+				if (rbutton.isDisplayed()) {
+					new Actions(Driver())
+								.dragAndDropBy(rbutton, width / 100 * (-rprocent), 0)
+								.build()
+				                .perform();
+					
+					Logger().log(LogStatus.PASS, "Slider moved " + rb);
+				} else {
+					Logger().log(LogStatus.FAIL,
+							"Cannot moved on element: element is not displayed on page or it's dimensions are 0"
+									+ Logger().addScreenCapture(Screenshot.take()));
+					sAssert.assertTrue(1 == 2);
+				}
+			}
+		}
+	}
+	
+	public static void checkPrice(String resultPrice, String searchPrice) {
+		WebDriverWait wait = new WebDriverWait(Driver(), 100);
+		
+		WebElement rbutton = wait.until(ExpectedConditions.elementToBeClickable(getElement(searchPrice)));
+		int sPrice = Integer.parseInt((rbutton.getAttribute("aria-valuetext").replaceAll("[£,]", "")));
+		List<WebElement> elements = Driver().findElements(By.cssSelector(resultPrice));
+		System.out.println("Number of elements: " + elements.size());
+		for(WebElement ele : elements){
+			int rPrice = Integer.parseInt(ele.getText().replace("£", ""));
+			if (rPrice <= sPrice) {
+				System.out.println("result - Ok: price " + rPrice + " <= " + sPrice);
+			} else {
+				System.out.println("result - Error: price " + rPrice + " <= " + sPrice);
+			}
+		}
+	}
+	
+	private static int timeToInt(String time) {
+	    String[] hourMin = time.split(":");
+	    int hour = Integer.parseInt(hourMin[0]);
+	    int mins = Integer.parseInt(hourMin[1]);
+	    int hoursInMins = hour * 60;
+	    return hoursInMins + mins;
+	}
+	
+	public static void checkDepart(String resultTime, String searchTime) {
+		WebDriverWait wait = new WebDriverWait(Driver(), 100);
+		
+		WebElement rbutton = wait.until(ExpectedConditions.elementToBeClickable(getElement(searchTime)));
+		String[] sTime = rbutton.getAttribute("aria-valuetext").split(" - ");
+		int startTime = timeToInt(sTime[0]);
+		int endTime = timeToInt(sTime[1]);
+		
+		List<WebElement> elements = Driver().findElements(By.cssSelector(resultTime));
+		System.out.println("Number of elements: " + elements.size());
+		for(WebElement ele : elements){
+			//String[] rTime = ele.getAttribute("aria-valuetext").split(" - ");
+			
+			int rTime = timeToInt(ele.getText());
+			
+			if (rTime >= startTime && rTime <= endTime) {
+				System.out.println("result - Ok: depart " + rTime + " after " + startTime + " before " + endTime);
+			} else {
+				System.out.println("result - Error: depart " + rTime + " after " + startTime + " before " + endTime);
+			}
+			
+		}
+	}	
+	
 	public static void enterText(String el, String args, String text) {
 		Logger().log(LogStatus.INFO, "Trying to enter text: " + text);
 		try {
