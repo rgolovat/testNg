@@ -1,16 +1,11 @@
 package testNGClasses;
 
 import org.testng.annotations.Test;
-
-import bsh.BshClassManager.Listener;
-
 import org.testng.AssertJUnit;
 import java.util.List;
 import org.openqa.selenium.WebElement;
-import org.testng.annotations.Listeners;
 import pages.MainPage;
 import pages.ResultPage;
-import utils.ListenersQw;
 import utils.MainClass;
 
 public class Test1 extends MainClass {
