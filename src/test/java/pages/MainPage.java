@@ -23,6 +23,23 @@ public class MainPage extends MainClass {
 	public static final String FlightClass = "//div[@class='field-box js-cabin-class-selector']//a[text()='%s']";
 	public static final String carHireLink = "//span[text()='Car Hire']";
 	public static final String searchButton = "//a[@aria-label='Search']";
+
+	//public static By searchButton = By.xpath("//a[@class='field-box search-button js-search-button']");
+
+	public static final String sliderTrack = ".js-slider-price";
+	public static final String rButton = ".js-slider-price .noUi-handle-lower";
+	
+	public static final String trackDepart = ".js-slider-depart-time";	
+	public static final String lButtonDepart = ".js-slider-depart-time .noUi-handle-lower";
+	public static final String rButtonDepart = ".js-slider-depart-time .noUi-handle-upper";
+	
+	public static final String trackReturn = ".js-slider-return-time";	
+	public static final String lButtonReturn = ".js-slider-return-time .noUi-handle-lower";
+	public static final String rButtonReturn = ".js-slider-return-time .noUi-handle-upper";
+	
+	public static final String resultPrice = ".price.js-raise-booking";
+	
+	public static final String resultDepart = ".points-list.count1 .time";
 	
 	public static void enterOriginCity(String city) {
 		clickOn(originCity, "Origin city");
@@ -63,6 +80,28 @@ public class MainPage extends MainClass {
 		clickOn(FlightClass, fClass);
 	}
 	
+	public static void enterSearchButton(){
+		clickOn(MainPage.searchButton, "");
+	}
+
+	public static void movePriceSlider(){
+		moveTo(MainPage.sliderTrack, null, 0, MainPage.rButton, 30);
+	}
 	
+	public static void moveDepartSlider(){
+		moveTo(MainPage.trackDepart, MainPage.lButtonDepart, 20, MainPage.rButtonDepart, 40);
+	}	
+	
+	public static void moveReturnSlider(){
+		moveTo(MainPage.trackReturn, MainPage.lButtonReturn, 30, MainPage.rButtonReturn, 50);
+	}
+	
+	public static void checkPrice(){
+		checkPrice(MainPage.resultPrice, MainPage.rButton);
+	}
+	
+	public static void checkDepart(){
+		checkDepart(MainPage.resultDepart, MainPage.lButtonDepart);
+	}	
 
 }

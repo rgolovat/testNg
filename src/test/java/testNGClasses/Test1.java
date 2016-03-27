@@ -25,4 +25,5 @@ public class Test1 extends MainClass {
 			assertTrue("Verifying if have results", el.getText() != null);
 		}
 	}
+	
 }
